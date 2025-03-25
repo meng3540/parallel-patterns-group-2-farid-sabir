@@ -4,8 +4,7 @@
 #include <time.h>
 
 #define TILE_SIZE 1024
-#define min(a,b) ((a)<(b)?(a):(b))
-#define max(a,b) ((a)>(b)?(a):(b))
+
 
 __device__ int co_rank_circular(int k, int* A, int m, int* B, int n, int A_S_start, int B_S_start, int tile_size) {
     int i = min(k, m);
