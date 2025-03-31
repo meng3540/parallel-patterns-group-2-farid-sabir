@@ -1,1 +1,19 @@
+Summary of optimizations applied
 
+Shared Memory Tiling:
+In CUDA, global memory is slow compared to shared memory, and accessing it repeatedly can create significant bottlenecks, especially when dealing with large data sets. If each thread repeatedly accesses global memory for the same data, the performance suffers due to the higher latency of global memory access. Instead of having each thread access global memory individually, you break the data into small chunks or "tiles." These tiles are then loaded into shared memory, which is much faster than global memory but limited in size. Once a tile is loaded into shared memory, all threads within a block can access it quickly without repeatedly fetching data from global memory. This also improves data locality which refers to the principle of storing and processing data as close as possible to where it's needed.
+
+Circular Buffering:
+Circular buffering is a technique used to manage the reuse of memory efficiently, especially in contexts where there is limited space (like shared memory on a GPU). After processing a tile, you'd normally need to copy it out of shared memory before loading a new one. This is inefficient because copying data in and out of shared memory takes time. Circular buffering avoids the need for these extra copies by allowing you to reuse memory that was already used by other tiles. This lets you ensure that shared memory is constantly being utilized, reducing idle time and improving overall performance.
+
+Circular Buffering Concept:
+You allocate a buffer in shared memory to hold multiple tiles. When you load the first tile into the buffer, your program begins processing it. As soon as you're done with the first tile, you start processing the second tile. Once you finish processing the second tile, the first tile’s memory location is free, so you can reuse that same memory location for the next tile, and so on. This reuse pattern is called circular because once the buffer is full, you overwrite the data from the first tile with the data of the next tile.
+
+Fine-grained Co-Rank:
+Threads within blocks perform secondary co-rank calculations to divide their work.
+This reduces divergence and ensures balanced merge work per thread.
+
+Key improvements over the novice version:
+Shared memory tiling is used to avoid repeated global memory access.
+Circular buffering is implemented to reuse tiles efficiently without additional copying.
+Co-ranking logic is adapted to operate within the circular buffer.
