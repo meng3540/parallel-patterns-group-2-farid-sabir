@@ -1,0 +1,11 @@
+1) What are parallel patterns in computing?
+
+Parallel patterns in computing is a technique used to divide computational tasks into smaller and independent units that are then processed simultaneously. This helps developers structure parallel algorithms way more efficiently and is an essential strategy for maximizing the performance of multicore processors. Some examples of parallel patterns that are used include the following: Map which applies the same operation to each element of a collection independently. Reduce which combines elements of a collection into one result. Pipeline which splits tasks into stages where the output of one stage is the input to the next. Fork-Join which divides tasks into subtasks, fork, and combines their results, join. Stencil which updates elements in a data structure based on neighboring values.
+
+2) What is their significance?- Explain in the context of typical applications they are used in.,
+ 
+The significance of parallel patterns comes from simplifying the development of parallel applications and ensuring that the solutions are efficient and fit for different architectures such as CPUs, GPUs, and clusters. A couple applications for parallel patterns are data analytics where it is used to process large datasets efficiently by mapping tasks across nodes and reducing results, image and signal processing where centrain filters are applied to images using stencil and map patterns, and machine learning where training models involves matrix multiplications and summations using map and reduce patterns.
+
+3) How is heterogeneous GPU-CPU computing useful in solving a parallel pattern?
+
+Heterogenous computing uses both the CPU and the GPU to maximize performance. The CPU focuses on sequential tasks and complex logic, while the GPU tackles exntesive parallel processing, featuring thousands of cores to execute numerous computations simultaneously. It is useful in solving parallel patterns as it enables efficient workload distrbution across the CPU and the GPU, leads to faster data processing as patterns like stencil or matrix multiplications run significantly faster on GPUs, reduces bottlenecks by offloading parallel tasks to the GPU and keeping sequential tasks on the CPU, and increases the energy efficiency as the GPU can perform certain parallel workloads more efficiently.

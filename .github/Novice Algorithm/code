@@ -1,0 +1,139 @@
+// Novice Merge Algorithm
+
+
+#include <cuda_runtime.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+__global__ void merge_kernel(int* A, int m, int* B, int n, int* C, int total) {
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    int threads = gridDim.x * blockDim.x;
+
+    int elements_per_thread = (total + threads - 1) / threads; // Avoid integer division issues
+    int k_curr = tid * elements_per_thread;
+    int k_next = (tid + 1) * elements_per_thread;
+    if (k_next > total) k_next = total;
+
+    // Co-rank function inline
+    int i_curr, i_next;
+    {
+        int k = k_curr;
+        int i = (k < m) ? k : m;
+        int j = k - i;
+        int i_low = (k - n > 0) ? k - n : 0;
+        int j_low = k - i_low;
+        while (1) {
+            if (i > 0 && j < n && A[i - 1] > B[j]) {
+                int delta = (i - i_low + 1) / 2;
+                i -= delta;
+                j += delta;
+            }
+            else if (j > 0 && i < m && B[j - 1] > A[i]) {
+                int delta = (j - j_low + 1) / 2;
+                j -= delta;
+                i += delta;
+            }
+            else {
+                break;
+            }
+        }
+        i_curr = i;
+    }
+
+    {
+        int k = k_next;
+        int i = (k < m) ? k : m;
+        int j = k - i;
+        int i_low = (k - n > 0) ? k - n : 0;
+        int j_low = k - i_low;
+        while (1) {
+            if (i > 0 && j < n && A[i - 1] > B[j]) {
+                int delta = (i - i_low + 1) / 2;
+                i -= delta;
+                j += delta;
+            }
+            else if (j > 0 && i < m && B[j - 1] > A[i]) {
+                int delta = (j - j_low + 1) / 2;
+                j -= delta;
+                i += delta;
+            }
+            else {
+                break;
+            }
+        }
+        i_next = i;
+    }
+
+    int j_curr = k_curr - i_curr;
+    int j_next = k_next - i_next;
+
+    // Sequential merge
+    int i = i_curr, j = j_curr, k = k_curr;
+    while (i < i_next && j < j_next) {
+        if (A[i] <= B[j]) C[k++] = A[i++];
+        else              C[k++] = B[j++];
+    }
+    while (i < i_next) C[k++] = A[i++];
+    while (j < j_next) C[k++] = B[j++];
+}
+
+
+
+int main() {
+    const int m = 1 << 20; // 2^20
+    const int n = 1 << 20; // 2^20
+    const int total = m + n;
+
+    // Allocate host memory
+    int* h_A = (int*)malloc(m * sizeof(int));
+    int* h_B = (int*)malloc(n * sizeof(int));
+    int* h_C = (int*)malloc(total * sizeof(int));
+
+   
+
+    // Initialize sorted input arrays
+    for (int i = 0; i < m; i++) h_A[i] = 2 * i;
+    for (int i = 0; i < n; i++) h_B[i] = 2 * i + 1;
+
+    // Allocate device memory
+    int* d_A, * d_B, * d_C;
+    cudaMalloc(&d_A, m * sizeof(int));
+    cudaMalloc(&d_B, n * sizeof(int));
+    cudaMalloc(&d_C, total * sizeof(int));
+
+    // Copy data to device
+    cudaMemcpy(d_A, h_A, m * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_B, h_B, n * sizeof(int), cudaMemcpyHostToDevice);
+
+    // Start timing
+    clock_t start = clock();
+
+    // Kernel launch
+    merge_kernel << <128, 256 >> > (d_A, m, d_B, n, d_C, total);
+    cudaGetLastError();  // Check for kernel launch errors
+    cudaDeviceSynchronize();
+
+    // End timing
+    clock_t end = clock();
+    double duration_ms = (double)(end - start) * 1000.0 / CLOCKS_PER_SEC;
+    printf("Execution time (ms): %.2f\n", duration_ms);
+
+    // Copy result back to host
+    cudaMemcpy(h_C, d_C, total * sizeof(int), cudaMemcpyDeviceToHost);
+
+    // Calculate Effective Memory Bandwidth
+    double bandwidth = (3.0 * total * sizeof(int)) / (duration_ms * 1e6); // GB/s
+    printf("Effective Memory Bandwidth: %.2f GB/s\n", bandwidth);
+
+    // Free memory
+    free(h_A);
+    free(h_B);
+    free(h_C);
+    cudaFree(d_A);
+    cudaFree(d_B);
+    cudaFree(d_C);
+
+    return 0;
+}
+
