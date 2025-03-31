@@ -1,5 +1,3 @@
-Summary of optimizations applied
-
 Shared Memory Tiling:
 In CUDA, global memory is slow compared to shared memory, and accessing it repeatedly can create significant bottlenecks, especially when dealing with large data sets. If each thread repeatedly accesses global memory for the same data, the performance suffers due to the higher latency of global memory access. Instead of having each thread access global memory individually, you break the data into small chunks or "tiles." These tiles are then loaded into shared memory, which is much faster than global memory but limited in size. Once a tile is loaded into shared memory, all threads within a block can access it quickly without repeatedly fetching data from global memory. This also improves data locality which refers to the principle of storing and processing data as close as possible to where it's needed.
 
