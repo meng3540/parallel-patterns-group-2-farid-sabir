@@ -1,1 +1,7 @@
+Interestingly, the novice kernel had a higher occupancy — around 98%, but very low compute throughput. The optimized kernel had slightly lower occupancy at 72%, but much higher throughput. This proves that high occupancy alone doesn’t mean better performance — memory access patterns matter more.
 
+Nsight showed a major boost in compute throughput, from 5.4% in the novice version to 39.4% in the optimized version. We also observed reduced DRAM throughput, indicating better use of shared memory. Despite slight workload imbalance (which is expected with co-ranking), overall GPU utilization was more effective.
+
+Overall, the optimizations successfully cut execution time almost in half, doubled memory bandwidth, and significantly improved memory and compute efficiency — all by restructuring the kernel around shared memory, co-ranking, and circular buffers. These results demonstrate the value of CUDA-aware optimizations when working with memory-bound parallel algorithms like merge.
+
+The novice kernel achieved high occupancy (~96%), but suffered from very high DRAM access and memory latency. The optimized kernel, while showing lower occupancy (~72%), dramatically reduced memory overhead. Average DRAM active cycles dropped from 14 million to just 493,000, and overall elapsed compute cycles dropped from 272M to optimization efforts using shared memory tiling and circular buffers were effective in reducing memory bottlenecks.
