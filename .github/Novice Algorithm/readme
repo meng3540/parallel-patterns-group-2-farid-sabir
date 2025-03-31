@@ -1,1 +1,9 @@
-*Introduction*
+Introduction:
+The Merge or Sort parallel pattern is a computational strategy that involves sorting or merging data in parallel to optimize performance, particularly for large datasets. This pattern is designed to efficiently handle sorting tasks in a parallel computing environment, such as on a GPU or multi-core CPU.
+Real life uses:
+- Real-time data processing in finance.
+- Sorting large-scale sensor data in autonomous vehicles.
+- Image and video processing pipelines.
+Explanation of the KUDA Kernel:
+This project begins with a basic version of the algorithm, which leverages GPU threads. 
+In the novice kernel, we implement a parallel merge using the co-ranking technique. The input consists of two sorted arrays A and B. Each thread is assigned a unique portion of the merged output array C, and it computes where to start and end its merge range using co-ranking logic. Co-ranking computes a division between A and B such that their elements can be merged independently. Each thread computes its boundaries and performs a sequential merge on its assigned subrange. Results are written to output array C in global memory.
